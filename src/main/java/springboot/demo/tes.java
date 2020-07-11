@@ -7,6 +7,7 @@ import java.util.Arrays;
  * @date 2020/7/7 0007 -  21:27
  */
 public class tes {
+    int A;
     public static void change(int [] arr){
 
         for (int i = 0; i < arr.length-1; i++) {
