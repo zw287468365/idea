@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/page")
 public class page {
+    String s;
     @RequestMapping("start")
     public String start(){
         return "starter";
