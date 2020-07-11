@@ -1,0 +1,133 @@
+<!-- Horizontal Form -->
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">添加角色</h3>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form class="form-horizontal">
+        <div class="box-body">
+            <div class="form-group">
+                <label for="nameId" class="col-sm-2 control-label">名称</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="name" id="nameId" placeholder="名称">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="noteId" class="col-sm-2 control-label">描述</label>
+
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="note" id="noteId" placeholder="描述">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">授权</label>
+                <div class="col-sm-10">
+                    <ul id="menuTree" class="ztree"></ul>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <button type="button" class="btn btn-default btn-cancel" id="back">Cancel</button>
+            <button type="button" class="btn btn-info pull-right btn-save" id="save">Save</button>
+        </div>
+        <!-- /.box-footer -->
+    </form>
+</div>
+<script type="text/javascript" src="bower_components/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript">
+    var zTree; // 声明一个变量保存zTree对象
+    var setting ={
+        check:{
+            enable: true,
+            chkboxType:{
+                "Y":"s", // 勾选父节点影响子节点
+                "N":"s" // 取消勾选父节点影响子节点
+            }
+        },
+        data:{
+            simpleData:{
+                enable:true,
+                idKey:"id",
+                pIdKey:"parentId",
+                rootPId:null
+            }
+        }
+    }
+    $(function () {
+        showMenuLists();
+        initEditForm();
+        $("#back").click(function () {
+            var url="/sys/role_list";
+            $("#mainContentId").load(url);
+        })
+        $("#save").click(saveRole);
+    })
+    function initEditForm() {
+
+    }
+
+    function showMenuLists() {
+        var url="/menu/findMenuNode";
+        $.getJSON(url,function (result) {
+             if(result.code==200){
+                 zTree=$.fn.zTree.init(
+                     $("#menuTree"),
+                     setting,
+                     result.data
+                 );
+                 // zTree.expandAll(true); // 展开所有节点
+             }else {
+                 alert(result.msg);
+             }
+        })
+    }
+
+    function saveRole() {
+        var url="/role/insertRole";
+        var params=getRoleFormData();
+        if(params.name==null||params.name==""){
+            alert("角色名字为空");
+            return;
+        }
+        if(params.note==null||params.note==""){
+            alert("备注名字为空");
+            return;
+        }
+        if(params.menuIds==null||params.menuIds.length==0){
+            alert("所选菜单功能名字为空");
+            return;
+        }
+        $.post(url,params,function (result) {
+           if(result.code==200){
+               alert("添加成功");
+           }else {
+               alert(result.msg);
+           }
+        })
+    }
+
+    function getRoleFormData() {
+        var params={
+            name:$("#nameId").val(),
+            note:$("#noteId").val()
+        }
+        var menuIds=[];
+        var checkNodes=zTree.getCheckedNodes(true);
+        for(var index in checkNodes){
+            menuIds.push(checkNodes[index].id);
+        }
+        params.menuIds=menuIds.toString();
+        return params;
+    }
+</script>
+    
+    
+    
+    
+    
+    
+    
+    

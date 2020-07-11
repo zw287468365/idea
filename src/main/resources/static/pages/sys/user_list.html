@@ -1,0 +1,83 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">用户管理</h3>
+
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+                                <i class="fa fa-search"></i>
+							</button>
+							<button type="button" id="btn-add" class="btn btn-default btn-add">添加</button>
+							<button type="button" class="btn btn-default btn-update">修改</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>用户名</th>
+							<th>部门</th>
+							<th>邮箱</th>
+							<th>手机号</th>
+							<th>状态</th>
+							<th>创建时间</th>
+							<th>修改时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId"></tbody>
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix">
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script src="js/page.js"></script>
+<script type="text/javascript">
+//获取分页数据的url
+var page_record_url="/user/findSysUser";
+var queryName="username";
+
+$(function(){
+	initPage(page_record_url, queryName);
+	$("#btn-add").click(function(){
+		var url="/sys/user_edit";
+		$("#mainContentId").load(url);
+	});
+});
+
+//将传过来的数据拼接表格返回一行内容
+function createRow(record){
+	var row = "<tr>"+
+	"<td><input type='radio' name='userId' value='"+record.id+"'></td>"+
+	"<td>"+record.username+"</td>"+
+	"<td>"+record.deptName+"</td>"+
+	"<td>"+record.email+"</td>"+
+	"<td>"+record.mobile+"</td>"+
+	"<td>"+(record.valid==0?"禁用":"启用")+"</td>"+
+	"<td>"+record.createdTime+"</td>"+
+	"<td>"+record.modifiedTime+"</td>"+
+	"<td><button id='btn-valid'>"+(record.valid==1?"禁用":"启用")+"</button></td>"+
+	"</tr>"
+	// 将row中所有的undefined替换成"无"
+	row=row.replace(/undefined/g,"无");
+	return row;
+}
+</script>
+
+
+
+

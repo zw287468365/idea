@@ -1,0 +1,68 @@
+<ul class="pagination pagination-sm no-margin pull-right" id="vue-pagination">
+	<li><a class="first">首页</a></li>
+	<li><a class="pre">上一页</a></li>
+	<li><a class="next">下一页</a></li>
+	<li><a class="last">尾页</a></li>
+	<li><a class="rowCount">总记录数({{pageObject.rowCount}})</a></li>
+	<li><a class="pageCount">总页数({{pageObject.pageCount}})</a></li>
+	<li><a class="pageCurrent">当前页({{pageObject.pageCurrent}})</a></li>
+</ul>
+<script type="text/javascript" src="../js/vue.js"/>
+<script type="text/javascript">
+	// var vm2=new Vue({
+	// 	el:"#vue-pagination",
+	// 	data:{
+	// 		pageObject:[]
+	// 	}
+	// });
+	$(function(){
+		$(".first,.pre,.next,.last").click(updatePageRecord);
+	})
+
+	// 分页工具栏中4个按钮的点击事件
+	function updatePageRecord(){
+		// 从pageId对应的div上获取之前绑定的数据
+		var pageCurrent=$("#pageId").data("pageCurrent");
+		var pageCount=$("#pageId").data("pageCount");
+
+		// 通过jQuery获取当前按钮的class属性的值
+		var className=$(this).prop("class");
+		switch(className){
+			case "first":
+				if(pageCurrent==1) return;
+				pageCurrent=1;// 页码改为1
+				break;
+			case "pre":
+				if(pageCurrent==1) return;
+				pageCurrent--;// 页码减1
+				break;
+			case "next":
+				if(pageCurrent==pageCount) return;
+				pageCurrent++;// 页码加1
+				break;
+			case "last":
+				if(pageCurrent==pageCount) return;
+				pageCurrent=pageCount; // 页码变为最后一页
+				break;
+		}
+		// 刷新页面数据
+		getPageRecord(pageCurrent);
+	}
+
+	function initPagination(pageObject){
+		$(".rowCount").html("总记录数("+pageObject.rowCount+")");
+		$(".pageCount").html("总页数("+pageObject.pageCount+")");
+		$(".pageCurrent").html("当前页("+pageObject.pageCurrent+")");
+		// 向pageId对应的div上绑定数据
+		$("#pageId").data("pageCurrent",pageObject.pageCurrent);
+		$("#pageId").data("pageCount",pageObject.pageCount);
+	}
+</script>
+
+
+
+
+
+
+
+

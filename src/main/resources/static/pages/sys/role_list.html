@@ -1,0 +1,163 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">角色管理</h3>
+
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							   class="form-control pull-right" placeholder="角色名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+								<i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-add" id="add_bt">添加</button>
+							<button type="button" class="btn btn-default btn-delete" id="delete_bt">删除</button>
+							<button type="button" class="btn btn-default btn-delete" id="update_bt">修改</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<form>
+					<table class="table table-hover">
+						<thead>
+						<tr>
+							<th>序号</th>
+							<th>角色名称</th>
+							<th>备注</th>
+							<th>创建时间</th>
+							<th>修改时间</th>
+							<th>创建用户</th>
+							<th>修改用户</th>
+							<th>操作</th>
+						</tr>
+						</thead>
+						<tbody id="tbodyId">
+						<tr v-for="data in pageData">
+							<td><input type="checkbox" id="check" :value="data.id"></td>
+							<td>{{data.name}}</td>
+							<td>{{data.note}}</td>
+							<td>{{data.createdTime}}</td>
+							<td>{{data.modifiedTime}}</td>
+							<td>{{data.createdUser}}</td>
+							<td>{{data.modifiedUser}}</td>
+<!--							<button id="btn-delete">delete</button> <a class='btn-update'>update</a>-->
+						</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+			<!-- /.box-body -->
+			<div id="pageId" class="box-footer clearfix">
+			</div>
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript" src="../js/vue.js"/>
+<script type="text/javascript">
+
+	var vm=new Vue({
+		el:"#tbodyId",
+		data:{
+			pageData:[]
+		}
+	})
+	$(function () {
+		var url="/common/page";
+		$("#pageId").load(url,function () {
+			getPageRecord(1);
+		})
+		$("#delete_bt").click(deleteRole);
+		$("#add_bt").click(insertRole);
+		$("#update_bt").click(updateRole);
+	})
+	function updateRole() {
+		var flag=confirm("请确认是否修改当前角色记录？");
+		// 否：return
+		if(flag==false){
+			return;
+		}
+		var ids=getCheckedId();
+		if(ids==undefined||ids.length==0){
+			alert("请选择一项");
+			return;
+		}
+		$("#mainContentId").data("ids",ids);
+		var url="/sys/role_edit";
+		$("#mainContentId").load(url,function () {
+           $(".box-title").text("修改角色");
+		});
+	}
+
+	function insertRole() {
+        var url="/sys/role_edit";
+        $("#mainContentId").load(url);
+	}
+
+	function deleteRole() {
+        var id=getCheckedId();
+		if(id.length==0){
+			alert("至少选择一条数据");
+		}
+		var ids=id[0];
+		var flag=confirm("确定要删除吗");
+		if(flag==false){
+			return;
+		}
+		var url ="/role/removeSysRole";
+		var params={
+			"id":ids
+		}
+		$.post(url,params,function (result) {
+            if(result.code==200){
+            	alert("删除成功");
+				getPageRecord(1);
+			}else {
+            	alert(result.msg);
+			}
+		})
+	}
+
+	function getCheckedId() {
+		var ids=[];
+		$("#tbodyId input[type=checkbox]").each(function () {
+			if($(this).prop("checked")==true){
+				ids.push($(this).val());
+			}
+		})
+		return ids;
+	}
+
+	function getPageRecord(pageCurrent) {
+		var url="/role/findSysRole";
+		var name=$("#searchNameId").val();
+		var params={
+			"name":name,
+			"pageCurrent":pageCurrent
+		}
+		$.getJSON(url,params,function(result) {
+         if(result.code==200){
+         	 vm.pageData=result.data.data;
+			 initPagination(result.data);
+		 }else{
+         	alert(result.msg);
+		 }
+		})
+	}
+</script>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,154 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">日志管理</h3>
+
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							   class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" id="btn-search" class="btn btn-default btn-search">
+								<i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-delete" id="delete_bt">删除</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+					<tr>
+						<th><input type="checkbox" id="checkAll">全选</th>
+						<th>用户名</th>
+						<th>操作</th>
+						<th>请求方法</th>
+						<th>请求参数</th>
+						<th>IP地址</th>
+						<th>执行时间</th>
+					</tr>
+					</thead>
+					<tbody id="tbodyId">
+					<tr id="default">
+						<td colspan="7">数据加载中...</td>
+					</tr>
+					<tr v-for="record in pageRecord">
+						<td><input type="checkbox" id="checkAll2" :value="record.id"></td>
+						<td>{{record.username}}</td>
+						<td>{{record.operation}}</td>
+						<td>{{record.method}}</td>
+						<td>{{record.params}}</td>
+						<td>{{record.ip}}</td>
+						<td>{{record.time}}</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix">
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript" src="../js/vue.js"/>
+<script type="text/javascript">
+	var vm =new Vue({
+		el:"#tbodyId",
+		data:{
+			pageRecord : []
+		}
+	});
+	$(function () {
+		var url = "/common/page";
+		$("#pageId").load(url,function(){
+			getPageRecord(1);
+		});
+		$("#btn-search").click(function () {
+			getPageRecord(1);
+		});
+		$("#delete_bt").click(removeRecord);
+		$("#checkAll").click(checkAll);
+	})
+
+	function removeRecord(){
+		var ids =  getCheckedId();
+		if(ids.length==0){
+			alert("至少选择一条数据");
+		}
+		var flag=confirm("确定要删除吗");
+		if(flag==false){
+			return;
+		}
+		var url = "/log/deleteLogList";
+		var params={
+			"ids":ids.toString() // [1,2,3] -> 1,2,3
+		};
+		$.post(url,params,function(result){
+			if(result.code==200){
+				alert("删除成功！");
+				// 刷新列表
+				getPageRecord(1);
+				// 将全选按钮设为未勾选状态
+				$("#tbodyId input[type=checkbox]").each(function () {
+                    $(this).prop("checked",false);
+				});
+				$("#checkAll").prop("checked",false);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function checkAll() {
+        var state =$("#checkAll").prop("checked");
+        $("#tbodyId input[type=checkbox]").each(function () {
+          $(this).prop("checked",state);
+		})
+	}
+
+	function getCheckedId() {
+		var ids=[];
+		$("#tbodyId input[type=checkbox]").each(function () {
+			if($(this).prop("checked")==true){
+				ids.push($(this).val());
+			}
+		})
+		return ids;
+	}
+
+
+	function getPageRecord(pageCurrent) {
+		var url ="/log/findSysLog";
+		var username=$("#searchNameId").val();
+		var params={
+			"username":username,
+			"pageCurrent":pageCurrent
+		};
+		$.getJSON(url,params,function(result){
+			if(result.code==200){
+				vm.pageRecord=result.data.data;
+				$("#default").hide();
+				// vm2.pageObject=result.data;
+				initPagination(result.data);
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+
+
+
+
+
+
+
+
+
+
+

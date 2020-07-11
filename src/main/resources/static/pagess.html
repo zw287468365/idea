@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>设备名称</th>
+        <th>设备类型</th>
+        <th>生产日期</th>
+        <th>价格</th>
+        <th>设备类型</th>
+    </tr>
+    </thead>
+    <tbody id="tbodyId">
+    <tr v-for="record in pageRecord">
+        <td><input type="checkbox" id="checkAll2" :value="record.id"></td>
+        <td>{{record.sbmc}}</td>
+        <td>{{record.sblxid}}</td>
+        <td>{{record.sbscrq}}</td>
+        <td>{{record.sbjg}}</td>
+        <td>{{record.sblxmc}}</td>
+    </tr>
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="vue.js"/>
+<script type="text/javascript">
+    var vm =new Vue({
+        el:"#tbodyId",
+        data:{
+            pageRecord : []
+        }
+    });
+    $(function () {
+        getPageRecord(1);
+    })
+    function getPageRecord(pageCurrent) {
+        var url ="/sbinfo/select";
+        var params={
+            "pageCurrent":pageCurrent
+        };
+        $.get(url,params,function(result){
+            if(result.code==200){
+                vm.pageRecord=result.data.data;
+            }else {
+                alert(result.msg);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

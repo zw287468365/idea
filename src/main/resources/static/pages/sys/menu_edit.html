@@ -1,0 +1,206 @@
+<!-- Horizontal Form -->
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">添加菜单</h3>
+    </div>
+    <!-- /.box-header -->
+    <!-- form start -->
+    <form class="form-horizontal">
+        <div class="box-body">
+            <div class="form-group">
+                <label for="nameId" class="col-sm-2 control-label">类型</label>
+                <div class="col-sm-10 typeRadio">
+                    <label class="radio-inline">
+                        <input type="radio" name="typeId" value="1" checked> 菜单 </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="typeId" value="2"> 按钮 </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="nameId" class="col-sm-2 control-label">菜单名称</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"  id="nameId" placeholder="名称">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="parentId" class="col-sm-2 control-label">上级菜单</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control load-sys-menu" readonly="readonly" id="parentId" placeholder="上级菜单">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="urlId" class="col-sm-2 control-label">菜单URL</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"  id="urlId" placeholder="url">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="permissionId" class="col-sm-2 control-label">授权标识：</label>
+                <div class="col-sm-10">
+                    <input type="text" id="permissionId"
+                           placeholder="多个用逗号分隔，如：user:list,user:create"
+                           class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sortId" class="col-sm-2 control-label">排序号：</label>
+                <div class="col-sm-10">
+                    <input type="text" id="sortId" placeholder="排序号"
+                           class="form-control">
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <button id="back-id" type="button" class="btn btn-default btn-cancel">Cancel</button>
+            <button id="save-id" type="button" class="btn btn-info pull-right btn-save">Save</button>
+        </div>
+        <!-- /.box-footer -->
+    </form>
+    <!-- zTree 对应的div -->
+    <div class="layui-layer layui-layer-page layui-layer-molv layer-anim" id="menuLayer" type="page" times="2" showtime="0" contype="object"
+         style="z-index:59891016; width: 300px; height: 450px; top: 100px; left: 500px; display:none">
+        <div class="layui-layer-title" style="cursor: move;">选择菜单</div>
+        <div class="layui-layer-content" style="height: 358px;">
+            <div style="padding: 10px;" class="layui-layer-wrap">
+                <ul id="menuTree" class="ztree"></ul>    <!-- 动态加载树 -->
+            </div>
+        </div>
+        <span class="layui-layer-setwin"> <a class="layui-layer-ico layui-layer-close layui-layer-close1 btn-cancel" ></a></span>
+        <div class="layui-layer-btn layui-layer-btn-">
+            <a id="btn-confirm" class="layui-layer-btn0 btn-confirm">确定</a>
+            <a class="layui-layer-btn1 btn-cancel">取消</a>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="bower_components/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="bower_components/layer/layer.js">
+</script>
+<script type="text/javascript">
+    $(function () {
+        $("#parentId").click(showMenuList);
+        $("#btn-confirm").click(setParentMenu);
+        $("#menuLayer").on("click",".btn-cancel",hideZTree);
+        $("#back-id").click(back);
+        $("#save-id").click(doSaveOrUpdate);
+        $("input[name=radio]:checked").val();
+
+        // 判断当前是添加操作还是修改操作
+        var menuId=$("#mainContentId").data("menuId");
+        if(menuId!=undefined){
+            var url="/menu/findSysMenuById";
+            var params={"menuId":menuId};
+            $.getJSON(url,params,function (result) {
+               if(result.code==200){
+                   initEditForm(result.data);
+               }else{
+                   alert(result.msg);
+               }
+            })
+        }
+    })
+
+    function initEditForm(record) {
+        $("input[value="+record.type+"]").prop("checked",true);
+        $("#nameId").val(record.name);
+        $("#parentId").data("parentId",record.parentId);
+        $("#parentId").val(record.parentName);
+        $("#urlId").val(record.url);
+        $("#permissionId").val(record.permission);
+        $("#sortId").val(record.sort);
+    }
+
+    function doSaveOrUpdate() {
+       var params=getFormData();
+        if(params.name==undefined || params.name==""){
+            alert("请添加菜单名称");
+            return;
+        }
+        var insertUrl="/menu/saveSysMenu";
+        var updateUrl="/menu/modifySysMenu";
+        var url=insertUrl;
+        var menuId=$("#mainContentId").data("menuId");
+        if(menuId!=undefined){
+            params.id=menuId;
+            url=updateUrl;
+        }
+       $.post(url,params,function (result) {
+          if(result.code==200){
+              alert("添加成功");
+              back();
+          }else {
+              alert(result.msg);
+          }
+       })
+    }
+
+    function getFormData() {
+       var parmars={
+           "type":$("input[name=typeId]:checked").val(),
+           "name":$("#nameId").val(),
+           "parentId":$("#parentId").data("parentId"),
+           "url":$("#urlId").val(),
+           "permission":$("#permissionId").val(),
+           "sort":$("#sortId").val()
+       }
+       return parmars;
+    }
+
+    function back() {
+       var url="/sys/menu_list";
+       $("#mainContentId").load(url);
+    }
+
+    function setParentMenu() {
+        var nodes=zTree.getSelectedNodes();
+        if(nodes==undefined||nodes.length==0){
+            alert("请勾选一项");
+        }
+        var node=nodes[0];
+        $("#parentId").data("parentId",node.id);
+        $("#parentId").val(node.name);
+        hideZTree();
+    }
+
+    function hideZTree(){
+        $("#menuLayer").css("display","none");
+    }
+
+    var zTree; // 声明一个变量保存zTree对象
+    var setting ={
+        data:{
+            simpleData:{
+                enable:true,
+                idKey:"id",
+                pIdKey:"parentId",
+                rootPId:null
+            }
+        }
+    }
+    function showMenuList() {
+        var url="/menu/findMenuNode";
+        $.getJSON(url,function (result) {
+            if(result.code==200){
+                zTree= $.fn.zTree.init(
+                    $("#menuTree"), // 显示zTree的目标对象
+                    setting, // zTree的配置对象
+                    result.data // zTree中显示的数据
+                );
+                zTree.expandAll(true); // 展开所有节点
+                // 显示菜单节点层
+                $("#menuLayer").css("display","block");
+            }else{
+                alert(result.msg);
+            }
+        })
+    }
+</script>
+    
+    
+    
+    
+    
+    
+    
+    
+    
