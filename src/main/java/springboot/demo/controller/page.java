@@ -11,8 +11,4 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/page")
 public class page {
 
-    @RequestMapping("start")
-    public String start(){
-        return "starter";
-    }
 }
